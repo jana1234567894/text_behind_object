@@ -43,4 +43,10 @@ export const ALL_FONTS = [
     "Ubuntu", "Ubuntu Condensed", "Ubuntu Mono", "Unbounded", "Unna", "Urbanist",
     "Varela Round", "Vollkorn", "Work Sans", "Yanone Kaffeesatz", "Yantramanav",
     "Yellowtail", "Yeseva One", "Zen Kaku Gothic New", "Zeyada", "Zilla Slab"
-]
+];
+
+export const availableFonts = ALL_FONTS.map(font => ({
+    name: font,
+    label: font,
+    family: `${font}, sans-serif`
+}));

@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TextCustomizerProps {
   textSet: {
-    id: number;
+    id: string;
     text: string;
     fontFamily: string;
     top: number;
@@ -37,8 +37,8 @@ interface TextCustomizerProps {
     tiltY: number;
     letterSpacing: number;
   };
-  handleAttributeChange: (id: number, attribute: string, value: any) => void;
-  removeTextSet: (id: number) => void;
+  handleAttributeChange: (id: string, attribute: string, value: any) => void;
+  removeTextSet: (id: string) => void;
   duplicateTextSet: (textSet: any) => void;
   userId: string;
 }
@@ -89,9 +89,9 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
   };
 
   return (
-    <AccordionItem value={`item-${textSet.id}`} className="border-0 mb-4">
-      <AccordionTrigger className="hover:no-underline bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 data-[state=open]:rounded-b-none transition-all duration-200 group">
-        <div className="flex items-center justify-between w-full">
+    <AccordionItem value={`item-${textSet.id}`} className="border-0 mb-4 bg-slate-100 dark:bg-slate-800 rounded-xl data-[state=open]:rounded-b-none transition-all duration-200">
+      <div className="flex items-center justify-between w-full px-4 py-3 group">
+        <AccordionTrigger className="hover:no-underline flex-1 text-left p-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
               <LayersIcon className="h-4 w-4 text-white" />
@@ -105,32 +105,32 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                duplicateTextSet(textSet);
-              }}
-              className="h-8 w-8 p-0 hover:bg-slate-200 dark:hover:bg-slate-700"
-            >
-              <CopyIcon className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeTextSet(textSet.id);
-              }}
-              className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-            >
-              <TrashIcon className="h-3.5 w-3.5" />
-            </Button>
-          </div>
+        </AccordionTrigger>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pl-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              duplicateTextSet(textSet);
+            }}
+            className="h-8 w-8 p-0 hover:bg-slate-200 dark:hover:bg-slate-700"
+          >
+            <CopyIcon className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeTextSet(textSet.id);
+            }}
+            className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            <TrashIcon className="h-3.5 w-3.5" />
+          </Button>
         </div>
-      </AccordionTrigger>
+      </div>
 
       <AccordionContent className="bg-white dark:bg-slate-900 rounded-b-xl border border-t-0 border-slate-200 dark:border-slate-700 p-4 space-y-4">
         <InputField
@@ -179,7 +179,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
                 </div>
 
                 <Touchpad
-                  id={textSet.id}
+                  id={Number(textSet.id.split('-')[2])}
                   onChangePosition={handleTouchpadChange}
                   onNudge={handleNudge}
                   onReset={handleReset}
@@ -234,9 +234,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
             <FontFamilyPicker
               attribute="fontFamily"
               currentFont={textSet.fontFamily}
-              handleAttributeChange={(attribute, value) =>
-                handleAttributeChange(textSet.id, attribute, value)
-              }
+              handleAttributeChange={(attribute, value) => handleAttributeChange(textSet.id, attribute, value)}
               userId={userId}
             />
             <SliderField

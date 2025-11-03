@@ -7,7 +7,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { CaretSortIcon, CheckIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { cn } from '@/lib/utils';
-import { FREE_FONTS, ALL_FONTS } from '@/constants/fonts';
+import { availableFonts, FREE_FONTS } from '@/constants/fonts';
 
 interface FontFamilyPickerProps { 
   attribute: string;
@@ -53,19 +53,19 @@ const FontFamilyPicker: React.FC<FontFamilyPickerProps> = ({
             <CommandEmpty>No font family found.</CommandEmpty>
             {!isPaidUser && (
               <CommandGroup heading="Free Fonts">
-                {FREE_FONTS.map((font) => (
+                {availableFonts.filter(font => FREE_FONTS.includes(font.name)).map((font) => (
                   <CommandItem
-                    value={font}
-                    key={font}
-                    onSelect={() => handleAttributeChange(attribute, font)}
+                    value={font.name}
+                    key={font.name}
+                    onSelect={() => handleAttributeChange(attribute, font.name)}
                     className='hover:cursor-pointer'
-                    style={{ fontFamily: font }}
+                    style={{ fontFamily: font.family }}
                   >
-                    {font}
+                    {font.label}
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        font === currentFont ? "opacity-100" : "opacity-0"
+                        font.name === currentFont ? "opacity-100" : "opacity-0"
                       )}
                     />
                   </CommandItem>
@@ -73,24 +73,24 @@ const FontFamilyPicker: React.FC<FontFamilyPickerProps> = ({
               </CommandGroup>
             )}
             <CommandGroup heading={isPaidUser ? "All Fonts" : "Premium Fonts (Upgrade to Access)"}>
-              {(isPaidUser ? ALL_FONTS : ALL_FONTS.filter(f => !FREE_FONTS.includes(f))).map((font) => (
+              {(isPaidUser ? availableFonts : availableFonts.filter(f => !FREE_FONTS.includes(f.name))).map((font) => (
                 <CommandItem
-                  value={font}
-                  key={font}
-                  onSelect={() => isPaidUser && handleAttributeChange(attribute, font)}
+                  value={font.name}
+                  key={font.name}
+                  onSelect={() => isPaidUser && handleAttributeChange(attribute, font.name)}
                   className={cn(
                     'hover:cursor-pointer',
                     !isPaidUser && 'opacity-50 hover:cursor-not-allowed'
                   )}
-                  style={{ fontFamily: font }}
+                  style={{ fontFamily: font.family }}
                 >
-                  {font}
+                  {font.label}
                   {!isPaidUser && <LockClosedIcon className="ml-auto h-4 w-4" />}
                   {isPaidUser && (
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        font === currentFont ? "opacity-100" : "opacity-0"
+                        font.name === currentFont ? "opacity-100" : "opacity-0"
                       )}
                     />
                   )}
