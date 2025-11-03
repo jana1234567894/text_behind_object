@@ -80,8 +80,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
   const handlePremiumAttributeChange = (attribute: string, value: any) => {
     if (
       isPaidUser ||
-      (attribute !== "letterSpacing" &&
-        attribute !== "tiltX" &&
+      (attribute !== "tiltX" &&
         attribute !== "tiltY")
     ) {
       handleAttributeChange(textSet.id, attribute, value);
@@ -244,6 +243,17 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               max={900}
               step={100}
               currentValue={textSet.fontWeight}
+              handleAttributeChange={(attribute, value) =>
+                handleAttributeChange(textSet.id, attribute, value)
+              }
+            />
+            <SliderField
+              attribute="letterSpacing"
+              label="Text Spacing"
+              min={-5}
+              max={20}
+              step={0.5}
+              currentValue={textSet.letterSpacing}
               handleAttributeChange={(attribute, value) =>
                 handleAttributeChange(textSet.id, attribute, value)
               }
