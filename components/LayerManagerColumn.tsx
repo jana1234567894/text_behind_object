@@ -4,15 +4,12 @@ import React from 'react';
 import { useLayerManager, Layer, TextLayer } from '@/context/useLayerManager';
 import { Button } from '@/components/ui/button';
 import {
-  EyeOpenIcon,
-  EyeClosedIcon,
-  LockClosedIcon,
-  LockOpen1Icon,
   PlusIcon,
   TextIcon,
   ImageIcon,
   PersonIcon,
 } from '@radix-ui/react-icons';
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -54,9 +51,9 @@ function SortableLayerItem({ layer }: { layer: Layer }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: layer.id, disabled: layer.locked });
+  } = useSortable({ id: layer.id });
 
-  const { activeLayer, setActiveLayer, setLayers } = useLayerManager();
+  const { activeLayer, setActiveLayer, toggleVisibility } = useLayerManager();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -64,34 +61,40 @@ function SortableLayerItem({ layer }: { layer: Layer }) {
     zIndex: isDragging ? 10 : undefined,
   };
 
-  const { toggleVisibility, toggleLock } = useLayerManager();
-
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
       onClick={() => setActiveLayer(layer.id)}
-      className={`
-        flex items-center p-3 border-b border-slate-200 dark:border-slate-800
-        cursor-grab ${layer.locked ? 'cursor-not-allowed' : ''}
-        ${isDragging ? 'bg-blue-100 dark:bg-blue-900/50 shadow-lg' : ''}
-        ${activeLayer === layer.id ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
-        transition-colors duration-150
-      `}
+      className={`flex items-center p-3 border-b border-slate-200 dark:border-slate-800
+    ${isDragging ? 'bg-blue-100 dark:bg-blue-900/50 shadow-lg' : ''}
+    ${activeLayer === layer.id ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
+    transition-colors duration-150`}
     >
-      <div className="flex-shrink-0 w-8 text-center">
+      {/* Drag handle zone only on the icon */}
+      <div
+        {...listeners}
+        className="flex-shrink-0 w-8 h-8 flex items-center justify-center cursor-grab active:cursor-grabbing"
+      >
         <LayerIcon type={layer.type} />
       </div>
-      <span className="flex-1 truncate font-medium text-sm">{layer.name}</span>
-      <div className="flex items-center space-x-2 ml-2">
-        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toggleLock(layer.id); }} className="h-8 w-8">
-          {layer.locked ? <LockClosedIcon /> : <LockOpen1Icon />}
-        </Button>
-        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toggleVisibility(layer.id); }} className="h-8 w-8">
-          {layer.visible ? <EyeOpenIcon /> : <EyeClosedIcon />}
-        </Button>
+
+      {/* The rest of the row (non-draggable) */}
+      <span className="flex-1 truncate font-medium text-sm ml-2">
+        {layer.name || (layer.type === 'text' ? (layer as TextLayer).text : '') || "New Text"}
+      </span>
+
+      {/* Eye button as before */}
+      <div
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleVisibility(layer.id);
+        }}
+        className="ml-auto p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+      >
+        {layer.visible ? <EyeIcon /> : <EyeOffIcon className="opacity-50" />}
       </div>
     </div>
   );
@@ -101,7 +104,11 @@ export const LayerManagerColumn = () => {
   const { layers, setLayers, activeLayer, setActiveLayer, activeTextLayer, addNewTextSet, handleAttributeChange, duplicateTextSet, removeTextSet } = useLayerManager();
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10, // drag starts only after moving 10px
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -149,6 +156,7 @@ export const LayerManagerColumn = () => {
             </div>
           </SortableContext>
         </DndContext>
+
         <div className="mt-4 border-t pt-2 p-4">
           <h3 className="text-sm font-medium mb-1">Text Layers</h3>
           <div className="flex flex-col gap-1">
@@ -164,6 +172,7 @@ export const LayerManagerColumn = () => {
             ))}
           </div>
         </div>
+
         {activeTextLayer && (
           <div className="mt-2 p-4">
             <Accordion type="single" collapsible defaultValue={`item-${activeTextLayer.id}`}>

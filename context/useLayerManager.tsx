@@ -6,42 +6,40 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export type LayerType = 'full' | 'text' | 'subject';
 
 interface BaseLayer {
-    id: string;
-    name: string;
-    type: LayerType;
-    visible: boolean;
-    locked: boolean;
-    order: number;
+  id: string;
+  name: string;
+  type: LayerType;
+  visible: boolean;
+  order: number;
 }
 
 export interface TextLayer extends BaseLayer {
-    type: 'text';
-    text: string;
-    fontFamily: string;
-    top: number;
-    left: number;
-    color: string;
-    fontSize: number;
-    fontWeight: number;
-    opacity: number;
-    shadowColor: string;
-    shadowSize: number;
-    rotation: number;
-    tiltX: number;
-    tiltY: number;
-    letterSpacing: number;
+  type: 'text';
+  text: string;
+  fontFamily: string;
+  top: number;
+  left: number;
+  color: string;
+  fontSize: number;
+  fontWeight: number;
+  opacity: number;
+  shadowColor: string;
+  shadowSize: number;
+  rotation: number;
+  tiltX: number;
+  tiltY: number;
+  letterSpacing: number;
 }
 
 export interface FullLayer extends BaseLayer {
-    type: 'full';
+  type: 'full';
 }
 
 export interface SubjectLayer extends BaseLayer {
-    type: 'subject';
+  type: 'subject';
 }
 
 export type Layer = TextLayer | FullLayer | SubjectLayer;
-
 
 // Define the context type
 interface LayerManagerContextType {
@@ -56,7 +54,6 @@ interface LayerManagerContextType {
   duplicateTextSet: (textSet: any) => void;
   removeTextSet: (id: string) => void;
   toggleVisibility: (id: string) => void;
-  toggleLock: (id: string) => void;
 }
 
 // Create the context
@@ -66,20 +63,54 @@ const LayerManagerContext = createContext<LayerManagerContextType | undefined>(u
 export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
   const [layers, setLayers] = useState<Layer[]>([
     {
-        id: 'full-layer',
-        name: 'Full Image',
-        type: 'full',
-        visible: true,
-        locked: false,
-        order: 0,
+      id: 'full-layer',
+      name: 'Full Image',
+      type: 'full',
+      visible: true,
+      order: 0,
     },
     {
-        id: 'text-layer-1',
+      id: 'text-layer-1',
+      name: 'New Text',
+      type: 'text',
+      visible: true,
+      order: 1,
+      text: 'edit',
+      fontFamily: 'Inter',
+      top: 0,
+      left: 0,
+      color: 'white',
+      fontSize: 200,
+      fontWeight: 800,
+      opacity: 1,
+      shadowColor: 'rgba(0, 0, 0, 0.8)',
+      shadowSize: 4,
+      rotation: 0,
+      tiltX: 0,
+      tiltY: 0,
+      letterSpacing: 0
+    },
+    {
+      id: 'subject-layer',
+      name: 'Subject Only',
+      type: 'subject',
+      visible: true,
+      order: 2,
+    }
+  ]);
+
+  const [activeLayer, setActiveLayer] = useState<string | null>('text-layer-1');
+  const activeTextLayer = layers.find(l => l.id === activeLayer && l.type === 'text') as TextLayer | undefined;
+
+  const addNewTextSet = () => {
+    const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
+    setLayers(prev => {
+      const newTextLayer: TextLayer = {
+        id: newId,
         name: 'New Text',
         type: 'text',
         visible: true,
-        locked: false,
-        order: 1,
+        order: prev.length,
         text: 'edit',
         fontFamily: 'Inter',
         top: 0,
@@ -94,53 +125,24 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
         tiltX: 0,
         tiltY: 0,
         letterSpacing: 0
-    },
-    {
-        id: 'subject-layer',
-        name: 'Subject Only',
-        type: 'subject',
-        visible: true,
-        locked: false,
-        order: 2,
-    }
-  ]);
-  const [activeLayer, setActiveLayer] = useState<string | null>('text-layer-1');
-
-  const activeTextLayer = layers.find(l => l.id === activeLayer && l.type === 'text') as TextLayer | undefined;
-
-  const addNewTextSet = () => {
-    const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
-    setLayers(prev => {
-      const newTextLayer: TextLayer = {
-          id: newId,
-          name: 'New Text',
-          type: 'text',
-          visible: true,
-          locked: false,
-          order: prev.length,
-          text: 'edit',
-          fontFamily: 'Inter',
-          top: 0,
-          left: 0,
-          color: 'white',
-          fontSize: 200,
-          fontWeight: 800,
-          opacity: 1,
-          shadowColor: 'rgba(0, 0, 0, 0.8)',
-          shadowSize: 4,
-          rotation: 0,
-          tiltX: 0,
-          tiltY: 0,
-          letterSpacing: 0
       };
       return [...prev, newTextLayer];
     });
   };
 
   const handleAttributeChange = (id: string, attribute: string, value: any) => {
-    setLayers(prev => prev.map(layer => 
-        layer.id === id ? { ...layer, [attribute]: value } : layer
-    ) as Layer[]);
+    setLayers(prev =>
+      prev.map(layer => {
+        if (layer.id === id) {
+          const newLayer = { ...layer, [attribute]: value };
+          if (attribute === 'text') {
+            newLayer.name = value || 'New Text';
+          }
+          return newLayer;
+        }
+        return layer;
+      }) as Layer[]
+    );
   };
 
   const updateLayer = (id: string, data: Partial<Layer>) => {
@@ -159,22 +161,37 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
     setLayers(prev => prev.filter(set => set.id !== id));
   };
 
+  // ✅ Clean new visibility toggle
   const toggleVisibility = (id: string) => {
-    setLayers(prev => prev.map(l => (l.id === id ? { ...l, visible: !l.visible } : l)) as Layer[]);
-  };
-
-  const toggleLock = (id: string) => {
-    setLayers(prev => prev.map(l => (l.id === id ? { ...l, locked: !l.locked } : l)) as Layer[]);
+    setLayers(prev =>
+      prev.map(layer =>
+        layer.id === id ? { ...layer, visible: !layer.visible } : layer
+      ) as Layer[]
+    );
   };
 
   return (
-    <LayerManagerContext.Provider value={{ layers, setLayers, activeLayer, setActiveLayer, activeTextLayer, addNewTextSet, handleAttributeChange, updateLayer, duplicateTextSet, removeTextSet, toggleVisibility, toggleLock }}>
+    <LayerManagerContext.Provider
+      value={{
+        layers,
+        setLayers,
+        activeLayer,
+        setActiveLayer,
+        activeTextLayer,
+        addNewTextSet,
+        handleAttributeChange,
+        updateLayer,
+        duplicateTextSet,
+        removeTextSet,
+        toggleVisibility
+      }}
+    >
       {children}
     </LayerManagerContext.Provider>
   );
 };
 
-// Create the custom hook
+// Custom hook
 export const useLayerManager = () => {
   const context = useContext(LayerManagerContext);
   if (context === undefined) {
