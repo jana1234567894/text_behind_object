@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 
-const PINCH_SENSITIVITY = 10.0;
+const PINCH_SENSITIVITY = 3.0;
 const SCROLL_SENSITIVITY = 0.2;
 const TRACKPAD_SENSITIVITY_MULTIPLIER = 1.0; // Extra sensitivity for touchpad pinches
 
