@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLayerManager, Layer, TextLayer } from '@/context/useLayerManager';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,7 +9,7 @@ import {
   ImageIcon,
   PersonIcon,
 } from '@radix-ui/react-icons';
-import { EyeIcon, EyeOffIcon, ChevronUp, ChevronDown } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -43,7 +43,7 @@ const LayerIcon = ({ type }: { type: Layer['type'] }) => {
   }
 };
 
-function SortableLayerItem({ layer, isTopTextLayer, isBottomTextLayer }: { layer: Layer; isTopTextLayer: boolean; isBottomTextLayer: boolean }) {
+function SortableLayerItem({ layer }: { layer: Layer }) {
   const {
     attributes,
     listeners,
@@ -53,7 +53,7 @@ function SortableLayerItem({ layer, isTopTextLayer, isBottomTextLayer }: { layer
     isDragging,
   } = useSortable({ id: layer.id });
 
-  const { activeLayer, setActiveLayer, toggleVisibility, moveLayerUp, moveLayerDown } = useLayerManager();
+  const { activeLayer, setActiveLayer, toggleVisibility } = useLayerManager();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -87,33 +87,9 @@ function SortableLayerItem({ layer, isTopTextLayer, isBottomTextLayer }: { layer
         {layer.name || (layer.type === 'text' ? (layer as TextLayer).text : '') || "New Text"}
       </span>
 
-      {/* Up/Down arrows for text layers */}
-      {isTextLayer && (
-        <>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              moveLayerUp(layer.id);
-            }}
-            disabled={isTopTextLayer}
-            className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed mr-1"
-            title="Move Forward"
-          >
-            <ChevronUp className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              moveLayerDown(layer.id);
-            }}
-            disabled={isBottomTextLayer}
-            className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed mr-1"
-            title="Move Backward"
-          >
-            <ChevronDown className="w-4 h-4" />
-          </button>
-        </>
-      )}
+
+      {/* Up/Down arrows removed per user request */}
+
 
       {/* Eye button as before */}
       <div
@@ -132,6 +108,9 @@ function SortableLayerItem({ layer, isTopTextLayer, isBottomTextLayer }: { layer
 
 export const LayerManagerColumn = () => {
   const { layers, setLayers, activeLayer, setActiveLayer, activeTextLayer, addNewTextSet, handleAttributeChange, duplicateTextSet, removeTextSet } = useLayerManager();
+
+  // State to keep accordion open across layer switches
+  const [accordionValue, setAccordionValue] = useState<string>(`item-${activeLayer || ''}`);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -157,7 +136,8 @@ export const LayerManagerColumn = () => {
     }
   };
 
-  const sortedLayers = layers.slice().sort((a, b) => b.order - a.order);
+  // Don't sort - keep layers in creation order (Subject, text layers, Full Image)
+  const displayLayers = layers;
   const textLayers = layers.filter(layer => layer.type === 'text') as TextLayer[];
 
   return (
@@ -176,29 +156,16 @@ export const LayerManagerColumn = () => {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={sortedLayers.map(l => l.id)}
+            items={displayLayers.map(l => l.id)}
             strategy={verticalListSortingStrategy}
           >
             <div>
-              {sortedLayers.map((layer, index) => {
+              {displayLayers.map((layer, index) => {
                 if (layer.type === 'text') {
-                  // Get all text layers to find max/min order values
-                  const allTextLayers = layers.filter(l => l.type === 'text');
-                  const maxOrder = Math.max(...allTextLayers.map(l => l.order));
-                  const minOrder = Math.min(...allTextLayers.map(l => l.order));
-
-                  // Disable UP if this layer has highest order (front-most)
-                  const isTopTextLayer = layer.order === maxOrder;
-
-                  // Disable DOWN if this layer has lowest order (back-most)
-                  const isBottomTextLayer = layer.order === minOrder;
-
                   return (
                     <SortableLayerItem
                       key={layer.id}
                       layer={layer}
-                      isTopTextLayer={isTopTextLayer}
-                      isBottomTextLayer={isBottomTextLayer}
                     />
                   );
                 } else {
@@ -207,8 +174,6 @@ export const LayerManagerColumn = () => {
                     <SortableLayerItem
                       key={layer.id}
                       layer={layer}
-                      isTopTextLayer={false}
-                      isBottomTextLayer={false}
                     />
                   );
                 }
@@ -235,7 +200,12 @@ export const LayerManagerColumn = () => {
 
         {activeTextLayer && (
           <div className="mt-2 p-4">
-            <Accordion type="single" collapsible defaultValue={`item-${activeTextLayer.id}`}>
+            <Accordion
+              type="single"
+              collapsible
+              value={accordionValue}
+              onValueChange={setAccordionValue}
+            >
               <TextCustomizer
                 textSet={activeTextLayer}
                 handleAttributeChange={(id, attribute, value) => handleAttributeChange(activeTextLayer.id, attribute, value)}

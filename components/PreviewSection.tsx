@@ -340,10 +340,10 @@ export const PreviewSection = () => {
             <header className='sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-950/60'>
                 <div className='container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8'>
                     <div className="flex items-center space-x-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
-                            <span className="text-sm font-bold text-white">T</span>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden">
+                            <img src="/img/vishal_b_0702241200.jpg" alt="Logo" className="w-full h-full object-cover" />
                         </div>
-                        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 via-amber-600 to-yellow-800 bg-clip-text text-transparent">
                             TextFX
                         </h2>
                     </div>
@@ -359,7 +359,7 @@ export const PreviewSection = () => {
                             <Button
                                 onClick={saveCompositeImage}
                                 variant="outline"
-                                className='hidden md:flex items-center gap-2 border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200'
+                                className='hidden md:flex items-center gap-2 border-slate-300 dark:border-slate-700 hover:border-yellow-500 dark:hover:border-yellow-400 transition-all duration-200'
                             >
                                 <DownloadIcon className="h-4 w-4" />
                                 Export
@@ -367,7 +367,7 @@ export const PreviewSection = () => {
                         )}
                         <Button
                             onClick={handleUploadImage}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-600/25 transition-all duration-200 flex items-center gap-2"
+                            className="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white shadow-lg shadow-yellow-500/25 hover:shadow-yellow-600/25 transition-all duration-200 flex items-center gap-2"
                         >
                             <UploadIcon className="h-4 w-4" />
                             Upload Image
@@ -454,11 +454,11 @@ export const PreviewSection = () => {
                 ) : (
                     <div className='flex flex-col items-center justify-center h-full space-y-8 text-center'>
                         <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 mb-4">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600">
-                                <span className="text-2xl font-bold text-white">T</span>
+                            <div className="flex h-16 w-16 items-center justify-center rounded-xl overflow-hidden">
+                                <img src="/img/vishal_b_0702241200.jpg" alt="Logo" className="w-full h-full object-cover" />
                             </div>
                         </div>
-                        <h1 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent leading-tight">
+                        <h1 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-yellow-600 via-amber-600 to-yellow-800 bg-clip-text text-transparent leading-tight">
                             Bring Your Images to Life
                         </h1>
                         <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
@@ -468,7 +468,7 @@ export const PreviewSection = () => {
                             <Button
                                 onClick={handleUploadImage}
                                 size="lg"
-                                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-2xl shadow-blue-500/25 hover:shadow-blue-600/25 transition-all duration-200 text-lg px-8 py-6 h-auto"
+                                className="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white shadow-2xl shadow-yellow-500/25 hover:shadow-yellow-600/25 transition-all duration-200 text-lg px-8 py-6 h-auto"
                             >
                                 <UploadIcon className="h-5 w-5 mr-3" />
                                 Upload Your Image
@@ -476,7 +476,7 @@ export const PreviewSection = () => {
                             <Button
                                 variant="outline"
                                 size="lg"
-                                className="border-2 border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 text-lg px-8 py-6 h-auto"
+                                className="border-2 border-slate-300 dark:border-slate-700 hover:border-yellow-500 dark:hover:border-yellow-400 text-slate-700 dark:text-slate-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-all duration-200 text-lg px-8 py-6 h-auto"
                             >
                                 See Examples
                             </Button>

@@ -121,7 +121,8 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
   const addNewTextSet = () => {
     const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
     setLayers(prev => {
-      // Find the subject layer to determine where to insert the new text
+      // Find the subject layer index to insert before it
+      const subjectIndex = prev.findIndex(l => l.type === 'subject');
       const subjectLayer = prev.find(l => l.type === 'subject');
       const newOrder = subjectLayer ? subjectLayer.order : prev.length;
 
@@ -153,6 +154,14 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
         layer.order >= newOrder ? { ...layer, order: layer.order + 1 } : layer
       );
 
+      // Insert new layer before Subject Only
+      if (subjectIndex !== -1) {
+        const result = [...updatedLayers];
+        result.splice(subjectIndex, 0, newTextLayer);
+        return result;
+      }
+
+      // Fallback: append if no subject layer found
       return [...updatedLayers, newTextLayer];
     });
   };
@@ -181,7 +190,8 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
   const duplicateTextSet = (textSet: TextLayer) => {
     const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
     setLayers(prev => {
-      // Find the subject layer to determine where to insert the duplicated text
+      // Find the subject layer index to insert before it
+      const subjectIndex = prev.findIndex(l => l.type === 'subject');
       const subjectLayer = prev.find(l => l.type === 'subject');
       const newOrder = subjectLayer ? subjectLayer.order : prev.length;
 
@@ -193,6 +203,14 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
         layer.order >= newOrder ? { ...layer, order: layer.order + 1 } : layer
       );
 
+      // Insert new layer before Subject Only
+      if (subjectIndex !== -1) {
+        const result = [...updatedLayers];
+        result.splice(subjectIndex, 0, newLayer);
+        return result;
+      }
+
+      // Fallback: append if no subject layer found
       return [...updatedLayers, newLayer];
     });
   };

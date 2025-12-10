@@ -56,6 +56,9 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
   const [isGridEnabled, setIsGridEnabled] = useState(false);
   const [gridSize, setGridSize] = useState(20);
 
+  // Persistent tab state across layer switches
+  const [activeTab, setActiveTab] = useState('transform');
+
   // Get filter state from layer manager
   const { selectedFilter, setSelectedFilter, applyToFullImage, setApplyToFullImage, filterIntensity, setFilterIntensity, uploadedImageElement } = useLayerManager();
 
@@ -151,7 +154,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
           }
         />
 
-        <Tabs defaultValue="transform" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="transform">Transform</TabsTrigger>
             <TabsTrigger value="style">Style</TabsTrigger>

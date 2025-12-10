@@ -12,6 +12,9 @@ const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600'] })
 export const metadata: Metadata = {
   title: "TextFX",
   description: "Text and image layer editor",
+  icons: {
+    icon: '/img/vishal_b_0702241200.jpg',
+  },
 };
 
 export default function RootLayout({
