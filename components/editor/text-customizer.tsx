@@ -6,6 +6,7 @@ import SliderField from "./slider-field";
 import ColorPicker from "./color-picker";
 import FontFamilyPicker from "./font-picker";
 import Touchpad from "./touchpad";
+import FilterEditor from "./filter-editor";
 import { Button } from "../ui/button";
 import {
   AccordionContent,
@@ -18,6 +19,7 @@ import {
   LayersIcon,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLayerManager } from "@/context/useLayerManager";
 
 interface TextCustomizerProps {
   textSet: {
@@ -54,33 +56,36 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
   const [isGridEnabled, setIsGridEnabled] = useState(false);
   const [gridSize, setGridSize] = useState(20);
 
-    // Touchpad handler — receives left/top offsets (in -50..50) and updates attributes
-    const handleTouchpadChange = (leftOffset: number, topOffset: number) => {
-      handleAttributeChange(textSet.id, 'left', leftOffset);
-      handleAttributeChange(textSet.id, 'top', topOffset);
-    };
+  // Get filter state from layer manager
+  const { selectedFilter, setSelectedFilter, applyToFullImage, setApplyToFullImage, filterIntensity, setFilterIntensity } = useLayerManager();
 
-    const handleZoom = (delta: number) => {
-      const newSize = Math.max(10, Math.min(800, textSet.fontSize + delta));
-      handleAttributeChange(textSet.id, 'fontSize', newSize);
-    };
+  // Touchpad handler — receives left/top offsets (in -50..50) and updates attributes
+  const handleTouchpadChange = (leftOffset: number, topOffset: number) => {
+    handleAttributeChange(textSet.id, 'left', leftOffset);
+    handleAttributeChange(textSet.id, 'top', topOffset);
+  };
 
-    const handleNudge = (direction: 'up' | 'down' | 'left' | 'right') => {
-      const step = 2; // percentage points matching left/top units
-      let newLeft = textSet.left;
-      let newTop = textSet.top;
-      if (direction === 'up') newTop = Math.max(-50, Math.min(50, newTop + step));
-      if (direction === 'down') newTop = Math.max(-50, Math.min(50, newTop - step));
-      if (direction === 'left') newLeft = Math.max(-50, Math.min(50, newLeft - step));
-      if (direction === 'right') newLeft = Math.max(-50, Math.min(50, newLeft + step));
-      handleAttributeChange(textSet.id, 'left', newLeft);
-      handleAttributeChange(textSet.id, 'top', newTop);
-    };
+  const handleZoom = (delta: number) => {
+    const newSize = Math.max(10, Math.min(800, textSet.fontSize + delta));
+    handleAttributeChange(textSet.id, 'fontSize', newSize);
+  };
 
-    const handleReset = () => {
-      handleAttributeChange(textSet.id, 'left', 0);
-      handleAttributeChange(textSet.id, 'top', 0);
-    };
+  const handleNudge = (direction: 'up' | 'down' | 'left' | 'right') => {
+    const step = 2; // percentage points matching left/top units
+    let newLeft = textSet.left;
+    let newTop = textSet.top;
+    if (direction === 'up') newTop = Math.max(-50, Math.min(50, newTop + step));
+    if (direction === 'down') newTop = Math.max(-50, Math.min(50, newTop - step));
+    if (direction === 'left') newLeft = Math.max(-50, Math.min(50, newLeft - step));
+    if (direction === 'right') newLeft = Math.max(-50, Math.min(50, newLeft + step));
+    handleAttributeChange(textSet.id, 'left', newLeft);
+    handleAttributeChange(textSet.id, 'top', newTop);
+  };
+
+  const handleReset = () => {
+    handleAttributeChange(textSet.id, 'left', 0);
+    handleAttributeChange(textSet.id, 'top', 0);
+  };
 
   const handlePremiumAttributeChange = (attribute: string, value: any) => {
     if (
@@ -147,10 +152,11 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
         />
 
         <Tabs defaultValue="transform" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="transform">Transform</TabsTrigger>
             <TabsTrigger value="style">Style</TabsTrigger>
             <TabsTrigger value="color">Color</TabsTrigger>
+            <TabsTrigger value="filters">Filters</TabsTrigger>
           </TabsList>
 
           {/* ---------- Transform Tab ---------- */}
@@ -311,6 +317,24 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               handleAttributeChange={(attribute, value) =>
                 handleAttributeChange(textSet.id, attribute, value)
               }
+            />
+          </TabsContent>
+
+          {/* ---------- Filters Tab ---------- */}
+          <TabsContent value="filters" className="pt-4">
+            <div className="text-center mb-4">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Apply professional filters to your entire composition.
+              </p>
+            </div>
+            <FilterEditor
+              image={null}
+              onFilterChange={setSelectedFilter}
+              selectedFilter={selectedFilter}
+              applyToFullImage={applyToFullImage}
+              onApplyToFullImageChange={setApplyToFullImage}
+              filterIntensity={filterIntensity}
+              onFilterIntensityChange={setFilterIntensity}
             />
           </TabsContent>
         </Tabs>

@@ -58,33 +58,33 @@ export const filters: Filter[] = [
     },
   },
   {
-  name: 'dramatic',
-  label: 'Dramatic',
-  settings: {
-    // Dramatic: High contrast and muted colors for a moody, intense feel.
-    contrast: 1.35,
-    saturate: 0.8,
-    brightness: 0.9,
-    hue: 0,
-    warmth: 0,
+    name: 'dramatic',
+    label: 'Dramatic',
+    settings: {
+      // Dramatic: High contrast and muted colors for a moody, intense feel.
+      contrast: 1.35,
+      saturate: 0.8,
+      brightness: 0.9,
+      hue: 0,
+      warmth: 0,
+    },
   },
-},
-{
-  name: 'dramaticWarm',
-  label: 'Dramatic Warm',
-  settings: {
-    // True Apple Dramatic Warm: high contrast + golden highlights + soft blacks
-    contrast: 1.4,        // punchier midtone contrast
-    brightness: 0.93,     // slight lift to exposure
-    saturate: 0.85,       // retains color richness
-    hue: 5,               // tilt hues toward orange (no pink/blue shift)
-    warmth: 0.25,         // stronger golden temperature
-    highlights: 0.88,     // soft rolloff for light glow
-    shadows: 1.1,         // mild lift to preserve shadow detail
-    clarity: 1.07,        // adds crisp depth
-    tint: -0.02,          // slight green tint to balance out warmth (avoid pink)
+  {
+    name: 'dramaticWarm',
+    label: 'Dramatic Warm',
+    settings: {
+      // True Apple Dramatic Warm: high contrast + golden highlights + soft blacks
+      contrast: 1.4,        // punchier midtone contrast
+      brightness: 0.93,     // slight lift to exposure
+      saturate: 0.85,       // retains color richness
+      hue: 5,               // tilt hues toward orange (no pink/blue shift)
+      warmth: 0.25,         // stronger golden temperature
+      highlights: 0.88,     // soft rolloff for light glow
+      shadows: 1.1,         // mild lift to preserve shadow detail
+      clarity: 1.07,        // adds crisp depth
+      tint: -0.02,          // slight green tint to balance out warmth (avoid pink)
+    },
   },
-},
 
 
 
@@ -158,13 +158,21 @@ export const applyFilter = (
 
   const { contrast, saturate, brightness, hue, warmth } = selectedFilter.settings;
 
-  // Reset canvas to the original image
+  // Create a temporary canvas to hold the unfiltered image
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = source.width;
+  tempCanvas.height = source.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  if (!tempCtx) return;
+
+  // Draw source to temporary canvas
+  tempCtx.drawImage(source, 0, 0);
+
+  // Set canvas dimensions
   canvas.width = source.width;
   canvas.height = source.height;
-  ctx.filter = 'none';
-  ctx.drawImage(source, 0, 0);
 
-  // Apply CSS-like filters
+  // Apply CSS-like filters to main canvas context
   ctx.filter = [
     `brightness(${brightness})`,
     `contrast(${contrast})`,
@@ -172,8 +180,11 @@ export const applyFilter = (
     `hue-rotate(${hue}rad)`,
   ].join(' ');
 
-  // Re-draw the image with the filter
-  ctx.drawImage(canvas, 0, 0);
+  // Draw from temp canvas to main canvas with filter applied
+  ctx.drawImage(tempCanvas, 0, 0);
+
+  // Reset filter
+  ctx.filter = 'none';
 
   // Apply warmth/coolness overlay
   if (warmth !== 0) {
@@ -185,3 +196,42 @@ export const applyFilter = (
     ctx.globalCompositeOperation = 'source-over'; // Reset composite operation
   }
 };
+
+/**
+ * Generates a CSS filter string for the given filter name.
+ * This is used for preview rendering and ensures parity with canvas export.
+ * @param filterName The name of the filter to convert to CSS
+ * @returns A CSS filter string (e.g., "brightness(1.1) contrast(1.2)")
+ */
+export const getFilterCSSString = (filterName: string): string => {
+  const filter = filters.find(f => f.name === filterName);
+  if (!filter || filterName === 'original') return 'none';
+
+  const { contrast, saturate, brightness, hue } = filter.settings;
+  return `brightness(${brightness}) contrast(${contrast}) saturate(${saturate}) hue-rotate(${hue}rad)`;
+};
+
+/**
+ * Generates a CSS filter string with intensity control (0-100%).
+ * Interpolates between original (no filter) and full filter effect.
+ * @param filterName The name of the filter to apply
+ * @param intensity The intensity from 0 (no effect) to 100 (full effect)
+ * @returns A CSS filter string with interpolated values
+ */
+export const getFilterCSSStringWithIntensity = (filterName: string, intensity: number): string => {
+  const filter = filters.find(f => f.name === filterName);
+  if (!filter || filterName === 'original' || intensity === 0) return 'none';
+  if (intensity === 100) return getFilterCSSString(filterName);
+  
+  const { contrast, saturate, brightness, hue } = filter.settings;
+  const t = intensity / 100; // 0.0 to 1.0
+  
+  // Interpolate each value from 1.0 (neutral) to the filter's value
+  const interpContrast = 1 + (contrast - 1) * t;
+  const interpSaturate = 1 + (saturate - 1) * t;
+  const interpBrightness = 1 + (brightness - 1) * t;
+  const interpHue = hue * t;
+  
+  return `brightness(c:\Users\ashwi\OneDrive\Desktop\desk\Attachments\Documents\Text-and-image{interpBrightness}) contrast(c:\Users\ashwi\OneDrive\Desktop\desk\Attachments\Documents\Text-and-image{interpContrast}) saturate(c:\Users\ashwi\OneDrive\Desktop\desk\Attachments\Documents\Text-and-image{interpSaturate}) hue-rotate(c:\Users\ashwi\OneDrive\Desktop\desk\Attachments\Documents\Text-and-image{interpHue}rad)`;
+};
+

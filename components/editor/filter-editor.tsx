@@ -13,6 +13,8 @@ interface FilterEditorProps {
   selectedFilter: string;
   applyToFullImage: boolean;
   onApplyToFullImageChange: (checked: boolean) => void;
+  filterIntensity: number;
+  onFilterIntensityChange: (intensity: number) => void;
 }
 
 const FilterEditor: React.FC<FilterEditorProps> = ({
@@ -21,6 +23,8 @@ const FilterEditor: React.FC<FilterEditorProps> = ({
   selectedFilter,
   applyToFullImage,
   onApplyToFullImageChange,
+  filterIntensity,
+  onFilterIntensityChange,
 }) => {
   return (
     <div className="w-full px-4">
@@ -36,6 +40,20 @@ const FilterEditor: React.FC<FilterEditorProps> = ({
             Apply to Full Image
           </Label>
         </div>
+      </div>
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <Label className="text-sm">Intensity</Label>
+          <span className="text-sm text-gray-500">{filterIntensity}%</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={filterIntensity}
+          onChange={(e) => onFilterIntensityChange(Number(e.target.value))}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+        />
       </div>
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex space-x-4 pb-4">

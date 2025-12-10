@@ -54,6 +54,12 @@ interface LayerManagerContextType {
   duplicateTextSet: (textSet: any) => void;
   removeTextSet: (id: string) => void;
   toggleVisibility: (id: string) => void;
+  selectedFilter: string;
+  setSelectedFilter: (filterName: string) => void;
+  applyToFullImage: boolean;
+  setApplyToFullImage: (apply: boolean) => void;
+  filterIntensity: number;
+  setFilterIntensity: (intensity: number) => void;
 }
 
 // Create the context
@@ -101,6 +107,11 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
 
   const [activeLayer, setActiveLayer] = useState<string | null>('text-layer-1');
   const activeTextLayer = layers.find(l => l.id === activeLayer && l.type === 'text') as TextLayer | undefined;
+
+  // Filter state
+  const [selectedFilter, setSelectedFilter] = useState<string>('original');
+  const [applyToFullImage, setApplyToFullImage] = useState<boolean>(true);
+  const [filterIntensity, setFilterIntensity] = useState<number>(100); // 0-100%
 
   const addNewTextSet = () => {
     const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
@@ -207,7 +218,13 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
         updateLayer,
         duplicateTextSet,
         removeTextSet,
-        toggleVisibility
+        toggleVisibility,
+        selectedFilter,
+        setSelectedFilter,
+        applyToFullImage,
+        setApplyToFullImage,
+        filterIntensity,
+        setFilterIntensity
       }}
     >
       {children}
