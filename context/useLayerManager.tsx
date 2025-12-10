@@ -105,12 +105,17 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
   const addNewTextSet = () => {
     const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
     setLayers(prev => {
+      // Find the subject layer to determine where to insert the new text
+      const subjectLayer = prev.find(l => l.type === 'subject');
+      const newOrder = subjectLayer ? subjectLayer.order : prev.length;
+
+      // Create new text layer with the calculated order
       const newTextLayer: TextLayer = {
         id: newId,
         name: 'New Text',
         type: 'text',
         visible: true,
-        order: prev.length,
+        order: newOrder,
         text: 'edit',
         fontFamily: 'Inter',
         top: 0,
@@ -126,7 +131,13 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
         tiltY: 0,
         letterSpacing: 0
       };
-      return [...prev, newTextLayer];
+
+      // Increment order of all layers at or after the insertion point
+      const updatedLayers = prev.map(layer =>
+        layer.order >= newOrder ? { ...layer, order: layer.order + 1 } : layer
+      );
+
+      return [...updatedLayers, newTextLayer];
     });
   };
 
@@ -153,8 +164,21 @@ export const LayerManagerProvider = ({ children }: { children: ReactNode }) => {
 
   const duplicateTextSet = (textSet: TextLayer) => {
     const newId = `text-layer-${Math.random().toString(36).substr(2, 9)}`;
-    const newLayer: TextLayer = { ...textSet, id: newId, order: layers.length };
-    setLayers(prev => [...prev, newLayer]);
+    setLayers(prev => {
+      // Find the subject layer to determine where to insert the duplicated text
+      const subjectLayer = prev.find(l => l.type === 'subject');
+      const newOrder = subjectLayer ? subjectLayer.order : prev.length;
+
+      // Create duplicated text layer with the calculated order
+      const newLayer: TextLayer = { ...textSet, id: newId, order: newOrder };
+
+      // Increment order of all layers at or after the insertion point
+      const updatedLayers = prev.map(layer =>
+        layer.order >= newOrder ? { ...layer, order: layer.order + 1 } : layer
+      );
+
+      return [...updatedLayers, newLayer];
+    });
   };
 
   const removeTextSet = (id: string) => {
