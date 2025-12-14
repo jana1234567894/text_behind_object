@@ -237,6 +237,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               currentFont={textSet.fontFamily}
               handleAttributeChange={(attribute, value) => handleAttributeChange(textSet.id, attribute, value)}
               userId={userId}
+              previewText={textSet.text || 'Sample'}
             />
             <SliderField
               attribute="fontWeight"
