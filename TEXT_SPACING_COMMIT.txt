@@ -1,7 +1,0 @@
-feat: Add Text Spacing slider to Style tab
-
-- Add Text Spacing slider in Style tab between Font Weight and Rotation
-- Range: -5px to 20px with 0.5px steps for precise letter spacing control
-- Real-time preview of text spacing changes
-- Letter spacing preserved in canvas exports
-- Available for all users (not premium feature)

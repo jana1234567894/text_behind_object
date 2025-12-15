@@ -14,9 +14,8 @@ export default function Page() {
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
       <div
-        className={`transition-all duration-300 ease-in-out border-r border-slate-200 dark:border-slate-800 ${
-          isPanelOpen ? 'w-[320px]' : 'w-0'
-        }`}
+        className={`transition-all duration-300 ease-in-out border-r border-slate-200 dark:border-slate-800 ${isPanelOpen ? 'w-[320px]' : 'w-0'
+          }`}
       >
         {isPanelOpen && <LayerManagerColumn />}
       </div>
